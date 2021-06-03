@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".export_calendar"
     android:orientation="vertical"
-    android:background="#003E5A">
+    android:background="@drawable/backgr_gird"
+    >
 
 
     <RelativeLayout
@@ -15,12 +16,14 @@
         android:layout_height="wrap_content"
         android:padding="10dp">
         <ImageView
+            android:background="@drawable/cutom_itemclick"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:id="@+id/img_save"
             android:src="@drawable/ic_baseline_arrow_downward_24"
             android:layout_alignParentRight="true"/>
         <ImageView
+            android:background="@drawable/cutom_itemclick"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:id="@+id/img_share"
@@ -29,6 +32,7 @@
             android:layout_marginRight="70dp"
             android:layout_alignParentRight="true"/>
         <ImageView
+            android:background="@drawable/cutom_itemclick"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:id="@+id/img_filter"
@@ -38,6 +42,7 @@
     </RelativeLayout>
 
         <RelativeLayout
+            android:padding="1dp"
             android:id="@+id/real"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -91,11 +96,12 @@
        android:layout_height="wrap_content"
        android:orientation="vertical">
        <LinearLayout
+
            android:id="@+id/Linear_storge"
            android:layout_width="match_parent"
            android:layout_height="wrap_content"
            android:orientation="horizontal"
-           android:layout_marginTop="10dp"
+           android:layout_marginTop="20dp"
            android:gravity="center"
            >
            <ImageView

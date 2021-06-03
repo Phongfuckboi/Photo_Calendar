@@ -2,9 +2,29 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="30dp">
+    android:padding="30dp"
+    >
 
+
+
+    <TextView
+        android:layout_marginLeft="37dp"
+        android:gravity="center"
+        android:fontFamily="@string/fab_transformation_sheet_behavior"
+        android:id="@+id/txt_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15dp"
+        android:textColor="#0A0A0B"
+      >
+
+    </TextView>
     <ImageView
+        android:padding="3dp"
+        android:background="@drawable/custom_image"
+        android:layout_marginTop="5dp"
+        android:scaleType="fitXY"
+        android:layout_below="@+id/txt_frame"
         android:id="@+id/img_frame"
         android:layout_width="150dp"
         android:layout_height="180dp"/>

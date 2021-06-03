@@ -6,10 +6,11 @@
     android:layout_height="match_parent"
     tools:context=".Flash_spreenActivity"
     android:gravity="center"
+    android:background="@drawable/back_ground_flash2"
     >
 
     <ImageView
-
+        android:layout_marginLeft="14dp"
         android:id="@+id/img_icon"
         android:layout_width="80dp"
         android:layout_height="80dp"
@@ -17,14 +18,15 @@
         android:src="@drawable/icon_calendar" />
 
     <ProgressBar
+
         android:id="@+id/progressBar2"
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/img_icon"
+       android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="77dp"
+        android:layout_marginBottom="70dp"
         android:outlineAmbientShadowColor="#CA6C6C"/>
 
 

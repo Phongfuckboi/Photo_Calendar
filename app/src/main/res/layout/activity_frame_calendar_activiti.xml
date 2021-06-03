@@ -7,6 +7,7 @@
     tools:context=".frame_calendar_activiti"
     android:orientation="vertical"
     android:id="@+id/linear_pickfame"
+    android:background="@drawable/backgr_gird"
     >
     <TextView
         android:id="@+id/img_tit"
@@ -26,7 +27,7 @@
         android:id="@+id/grv_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:numColumns="3"
+        android:numColumns="2"
         android:padding="10dp"></GridView>
 
 

@@ -32,6 +32,7 @@ public class frame_calendar_activiti extends AppCompatActivity {
     int[] arr_frame ={R.drawable.anh01, R.drawable.anh02,R.drawable.anh03,
             R.drawable.anh04,R.drawable.anh05,R.drawable.anh06,R.drawable.anh07,
             R.drawable.anh08,R.drawable.anh09,R.drawable.anh10,R.drawable.anh11,R.drawable.anh12};
+    String[] arr_name_frame={"January","Febuary","March","April","May","June","Junly","August","September","Octorber","November","December"};
     GridView giGridView;
     ArrayList<Abum_frame> arrayList;
 
@@ -52,6 +53,7 @@ public class frame_calendar_activiti extends AppCompatActivity {
         {
             Abum_frame abum_frame= new Abum_frame();
             abum_frame.setFrame(arr_frame[i]);
+            abum_frame.setName_frame(arr_name_frame[i]);
             arrayList.add(abum_frame);
 
         }

@@ -45,10 +45,6 @@ public class MainActivity2 extends AppCompatActivity {
     }
 
     private void initRecycirleView() {
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(layoutManager);
-        RecyclerView_adapter adapter = new RecyclerView_adapter(this, arrayList_name, arrayList_image);
-        recyclerView.setAdapter(adapter);
+
     }
 }

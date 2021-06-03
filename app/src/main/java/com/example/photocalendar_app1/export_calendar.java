@@ -1,31 +1,13 @@
 package com.example.photocalendar_app1;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.FileProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.Manifest;
-import android.content.Context;
-import android.content.DialogInterface;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Paint.Style;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -37,43 +19,37 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.photocalendar_app1.DTA.RecyclerView_adapter;
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.snackbar.Snackbar;
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.MultiplePermissionsReport;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionRequest;
-import com.karumi.dexter.listener.multi.DialogOnAnyDeniedMultiplePermissionsListener;
-import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
-import com.karumi.dexter.listener.multi.SnackbarOnAnyDeniedMultiplePermissionsListener;
-import com.karumi.dexter.listener.single.DialogOnDeniedPermissionListener;
-import com.karumi.dexter.listener.single.PermissionListener;
-import com.karumi.dexter.listener.single.SnackbarOnDeniedPermissionListener;
+import com.example.photocalendar_app1.DTO.Filter;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class export_calendar extends AppCompatActivity {
+public class export_calendar extends AppCompatActivity implements RecyclerView_adapter.OnItemClickListener {
 
 
     private static final String TAG = "AAA";
+    private static final int REQUEST_ID_MULTIPLE_PERMISSIONS =111 ;
     private ImageView img, img_user;
     private ImageView img_cam , img_gall, img_save, img_share, img_filter;
     private final static int CAMERA_REQUEST_CODE = 1;
     private final static int GALLERLY_REQUEST_CODE = 11;
     private ArrayList<String> arrayList_name=new ArrayList<>();
     private  ArrayList<String>arrayList_image=new ArrayList<>();
+    private ArrayList<Filter> arrayList_filter;
+    public  RecyclerView_adapter recyclerView_adapter;
     LinearLayout l1,l2;
     int i=1;
     int k=0;
@@ -86,18 +62,10 @@ public class export_calendar extends AppCompatActivity {
         img_save= findViewById(R.id.img_save);
         img_share= findViewById(R.id.img_share);
         img_filter=findViewById(R.id.img_filter);
+        img_gall= findViewById(R.id.img_gallerly);
         RelativeLayout relativeLayout= findViewById(R.id.real);
+        img_cam= findViewById(R.id.img_camara);
 
-
-        Dexter.withContext(this)
-                .withPermissions(
-                        Manifest.permission.CAMERA,
-                        Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ).withListener(new MultiplePermissionsListener() {
-            @Override public void onPermissionsChecked(MultiplePermissionsReport report) {/* ... */}
-            @Override public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {/* ... */}
-        }).check();
 
         //lay kich thuuoc goc cua man hinh
         int w = getResources().getDisplayMetrics().widthPixels;
@@ -123,14 +91,15 @@ public class export_calendar extends AppCompatActivity {
            }
        }
 
-       //get image form cam
-        img_cam= findViewById(R.id.img_camara);
-        pickimagecam();
+       //ckeck per mission
+        if(checkAndRequestPermissions(export_calendar.this))
+        {
+
+            choseimage();
+        }
 
 
-        //get from gallary
-        img_gall= findViewById(R.id.img_gallerly);
-        pickimagegallerly();
+
 
 
         // save imgae
@@ -160,6 +129,7 @@ public class export_calendar extends AppCompatActivity {
 
         //add filter
         addfilte();
+
         l1= findViewById(R.id.Linear_storge);
         l2= findViewById(R.id.Liner_filter);
         l2.setVisibility(View.GONE);
@@ -170,7 +140,6 @@ public class export_calendar extends AppCompatActivity {
                 l2.setVisibility(View.VISIBLE);
             }
         });
-
 
 
 
@@ -196,18 +165,25 @@ public class export_calendar extends AppCompatActivity {
         arrayList_image.add("https://cloud.githubusercontent.com/assets/4659608/13060886/9f6c03a4-d445-11e5-9771-36bf3e20591f.png");
         arrayList_name.add("Pixelate");
 
-        initRecycirleView();
+        arrayList_filter = new ArrayList<>();
+        for (int i=0; i<arrayList_image.size(); i++)
+        {
+            Filter filter =new Filter();
+            filter.setFiltername(arrayList_name.get(i));
+            filter.setImgae_frame(arrayList_image.get(i));
+            arrayList_filter.add(filter);
+        }
 
-
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(layoutManager);
+        RecyclerView_adapter adapter = new RecyclerView_adapter(this, arrayList_filter,this);
+        recyclerView.setAdapter(adapter);
 
     }
 
     private void initRecycirleView() {
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(layoutManager);
-        RecyclerView_adapter adapter = new RecyclerView_adapter(this, arrayList_name, arrayList_image);
-        recyclerView.setAdapter(adapter);
+
 
     }
 
@@ -282,43 +258,18 @@ public class export_calendar extends AppCompatActivity {
         }
     }
     // pick imagre form gallerly
-    private void pickimagegallerly() {
-        img_gall.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-               Intent intent_gallerly = new Intent(Intent.ACTION_PICK,  android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-               startActivityForResult(intent_gallerly, GALLERLY_REQUEST_CODE);
-            }
-        });
-    }
+//    private void pickimagegallerly() {
+//        img_gall.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//               Intent intent_gallerly = new Intent(Intent.ACTION_PICK,  android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+//               startActivityForResult(intent_gallerly, GALLERLY_REQUEST_CODE);
+//            }
+//        });
+//    }
 
 
-
-    //pick image form cam
-    private void pickimagecam() {
-        img_cam.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-
-            }
-        });
-    }
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull @NotNull String[] permissions, @NonNull @NotNull int[] grantResults) {
-        if(requestCode==CAMERA_REQUEST_CODE && grantResults.length>0 && grantResults[0]== PackageManager.PERMISSION_GRANTED)
-        {
-            Intent intent_gallerly = new Intent(Intent.ACTION_PICK,  android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            startActivityForResult(intent_gallerly, GALLERLY_REQUEST_CODE);
-        }
-        else
-        {
-            Toast.makeText(export_calendar.this,"Permission Denied",Toast.LENGTH_SHORT).show();
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
     // create uri
-
     private Uri saveImageshare(Bitmap image) {
         //TODO - Should be processed in another thread
         File imagesFolder = new File(getCacheDir(), "images");
@@ -337,6 +288,7 @@ public class export_calendar extends AppCompatActivity {
         return uri;
     }
 
+
     //Inten share
     private void shareImageUri(Uri uri){
         Intent intent = new Intent(android.content.Intent.ACTION_SEND);
@@ -346,112 +298,107 @@ public class export_calendar extends AppCompatActivity {
         startActivity(intent);
     }
 
+
+
+    //ckeck permisiion
+    private void choseimage() {
+    img_cam.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent= new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+            startActivityForResult(intent,CAMERA_REQUEST_CODE);
+        }
+    });
+
+
+    img_gall.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent pickPhoto = new Intent(Intent.ACTION_PICK,  android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(pickPhoto , GALLERLY_REQUEST_CODE);
+        }
+    });
+}
+
+    public static boolean checkAndRequestPermissions(final Activity context) {
+    int WExtstorePermission = ContextCompat.checkSelfPermission(context,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    int cameraPermission = ContextCompat.checkSelfPermission(context,
+            Manifest.permission.CAMERA);
+    List<String> listPermissionsNeeded = new ArrayList<>();
+    if (cameraPermission != PackageManager.PERMISSION_GRANTED) {
+        listPermissionsNeeded.add(Manifest.permission.CAMERA);
+    }
+    if (WExtstorePermission != PackageManager.PERMISSION_GRANTED) {
+        listPermissionsNeeded
+                .add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    }
+    if (!listPermissionsNeeded.isEmpty()) {
+        ActivityCompat.requestPermissions(context, listPermissionsNeeded
+                        .toArray(new String[listPermissionsNeeded.size()]),
+                REQUEST_ID_MULTIPLE_PERMISSIONS);
+        return false;
+    }
+    return true;
+}
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-
-
-        if ( requestCode == GALLERLY_REQUEST_CODE) {
-
-            if (data != null) {
-                Uri contentURI = data.getData();
-                try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), contentURI);
-                    Log.d("AAA","hihi"+bitmap);
-                    img_user.setImageBitmap(bitmap);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Failed!", Toast.LENGTH_SHORT).show();
+    public void onRequestPermissionsResult(int requestCode,String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case REQUEST_ID_MULTIPLE_PERMISSIONS:
+                if (ContextCompat.checkSelfPermission(export_calendar.this,
+                        Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getApplicationContext(),
+                            "FlagUp Requires Access to Camara.", Toast.LENGTH_SHORT)
+                            .show();
+                } else if (ContextCompat.checkSelfPermission(export_calendar.this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getApplicationContext(),
+                            "FlagUp Requires Access to Your Storage.",
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    choseimage();
                 }
-            }
-        }
-        else if(requestCode== CAMERA_REQUEST_CODE)
-        {
-
-            try {
-                Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
-                img_user.setImageBitmap(thumbnail);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
+                break;
         }
     }
-//    private void checkStoragePermission() {
-//        if (Build.VERSION.SDK_INT<Build.VERSION_CODES.M){
-//            return;
-//        }
-//
-//        if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED
-//                &&checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.CAMERA)== PackageManager.PERMISSION_GRANTED){
-//            Toast.makeText(this,"Permission granted",Toast.LENGTH_LONG).show();
-//        }else {
-//            requestPermission();
-//        }
-//    }
-//
-//    private void requestPermission() {
-//        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-//                Manifest.permission.READ_EXTERNAL_STORAGE) || ActivityCompat.shouldShowRequestPermissionRationale(this,
-//                Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-//            new AlertDialog.Builder(this)
-//                    .setTitle("Permission needed")
-//                    .setMessage("This permission is needed because of this and that")
-//                    .setPositiveButton("ok", new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            ActivityCompat.requestPermissions(export_calendar.this,
-//                                    new String[] {Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.CAMERA,
-//                                            Manifest.permission.WRITE_EXTERNAL_STORAGE},GALLERLY_REQUEST_CODE );
-//
-//                        }
-//                    })
-//                    .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            dialog.dismiss();
-//                        }
-//                    })
-//                    .create().show();
-//        } else {
-//            ActivityCompat.requestPermissions(this,
-//                    new String[] {Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.CAMERA,
-//                            Manifest.permission.WRITE_EXTERNAL_STORAGE
-//                            },GALLERLY_REQUEST_CODE);
-//        }
-//    }
-//    public void draw(Canvas canvas){
-//        Bitmap original = getBitmapFromAsset(this,"anh1.jpg");
-//        Bitmap mask =getBitmapFromAsset(this,"ntitle.png");
-//        Log.d("AAA",""+ original.getWidth()+" "+original.getHeight());
-//        Log.d("AAA",""+ mask.getWidth()+ " " +mask.getHeight());
-//        Bitmap result = Bitmap.createBitmap(mask.getWidth(), mask.getHeight(), Bitmap.Config.ARGB_8888);
-//        Canvas tempCanvas = new Canvas(result);
-//        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-//        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
-//        tempCanvas.drawBitmap(original, 0, 0, null);
-//        tempCanvas.drawBitmap(mask, 0, 0, paint);
-//        paint.setXfermode(null);
-//
-//        canvas.drawBitmap(result, 0, 0, new Paint());
-//    }
-//    public  Bitmap getBitmapFromAsset(Context context, String filePath) {
-//        AssetManager assetManager = context.getAssets();
-//
-//        InputStream istr;
-//        Bitmap bitmap = null;
-//        try {
-//            istr = assetManager.open(filePath);
-//            bitmap = BitmapFactory.decodeStream(istr);
-//        } catch (IOException e) {
-//            // handle exception
-//        }
-//
-//        return bitmap;
-//    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != RESULT_CANCELED) {
+            switch (requestCode) {
+                case CAMERA_REQUEST_CODE:
+                    if (resultCode == RESULT_OK && data != null) {
+                        Bitmap selectedImage = (Bitmap) data.getExtras().get("data");
+                        img_user.setImageBitmap(selectedImage);
+                    }
+                    break;
+                case GALLERLY_REQUEST_CODE:
+                    if (resultCode == RESULT_OK && data != null) {
+                        Uri selectedImage = data.getData();
+                        String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                        if (selectedImage != null) {
+                            Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+                            if (cursor != null) {
+                                cursor.moveToFirst();
+                                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                                String picturePath = cursor.getString(columnIndex);
+                                img_user.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+                                cursor.close();
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + requestCode);
+            }
+        }
+    }
 
 
+    @Override
+    public void onItemClick(int position) {
+        Toast.makeText(export_calendar.this,"ok",Toast.LENGTH_SHORT).show();
 
     }
+}

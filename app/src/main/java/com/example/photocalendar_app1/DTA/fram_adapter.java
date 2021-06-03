@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.photocalendar_app1.DTO.Abum_frame;
 import com.example.photocalendar_app1.R;
@@ -39,6 +40,7 @@ public class fram_adapter extends BaseAdapter {
     }
     public class Viewholder{
         ImageView imageView;
+        TextView txtTextView;
     }
 
 
@@ -51,11 +53,13 @@ public class fram_adapter extends BaseAdapter {
            holder=inflater.inflate(layout,parent,false);
            Viewholder viewholder= new Viewholder();
            viewholder.imageView=(ImageView) holder.findViewById(R.id.img_frame);
+           viewholder.txtTextView=holder.findViewById(R.id.txt_frame);
            holder.setTag(viewholder);
         }
 
         Viewholder viewholder=(Viewholder) holder.getTag();
         viewholder.imageView.setImageResource(list.get(position).getFrame());
+        viewholder.txtTextView.setText(list.get(position).getName_frame());
 
         return holder;
     }
