@@ -18,15 +18,15 @@
         android:padding="10dp">
         <ImageView
             android:background="@drawable/cutom_itemclick"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:id="@+id/img_save"
             android:src="@drawable/ic_baseline_arrow_downward_24"
             android:layout_alignParentRight="true"/>
         <ImageView
             android:background="@drawable/cutom_itemclick"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:id="@+id/img_share"
             android:src="@drawable/ic_baseline_share_24"
             android:layout_toLeftOf="@+id/img_save"
@@ -34,8 +34,8 @@
             android:layout_alignParentRight="true"/>
         <ImageView
             android:background="@drawable/cutom_itemclick"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:id="@+id/img_filter"
             android:src="@drawable/ic_outline_brush_24"
             android:layout_alignParentLeft="true"/>
@@ -44,7 +44,7 @@
     </RelativeLayout>
 
         <RelativeLayout
-            android:padding="1dp"
+
             android:id="@+id/real"
             android:layout_width="match_parent"
             android:layout_height="match_parent">

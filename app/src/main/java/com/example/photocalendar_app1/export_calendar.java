@@ -2,11 +2,16 @@ package com.example.photocalendar_app1;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,6 +19,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.transition.TransitionManager;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -61,6 +67,7 @@ public class export_calendar extends AppCompatActivity  {
     LinearLayout l1,l2,l3;
     int i=1;
     int k=2;
+    Bitmap bitmap_nochange;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,11 +81,16 @@ public class export_calendar extends AppCompatActivity  {
         relativeLayout = findViewById(R.id.real);
         img_cam= findViewById(R.id.img_camara);
 
+        l1= findViewById(R.id.Linear_storge);
+        l2= findViewById(R.id.Liner_filter);
+        l3=findViewById(R.id.linear_export);
+
 
 
 
 
         //lay kich thuuoc goc cua man hinh
+
         int w = getResources().getDisplayMetrics().widthPixels;
         LinearLayout.LayoutParams params= new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (w*4)/3);
         RelativeLayout raRelativeLayout= findViewById(R.id.real);
@@ -110,6 +122,19 @@ public class export_calendar extends AppCompatActivity  {
         }
 
 
+        //set image nochange\
+        relativeLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                bitmap_nochange=loadBitmapFromView(relativeLayout);
+                Log.d("AAA","a:"+bitmap_nochange);
+
+            }
+        });
+
+
+
+
         // save imgae
         img_save.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,7 +142,7 @@ public class export_calendar extends AppCompatActivity  {
 
                 Bitmap bm= loadBitmapFromView(relativeLayout);
                 Log.d("AAA",""+bm);
-                saveImage(bm);
+                saveImage11(bm);
                 Toast.makeText( export_calendar.this, "Saved", Toast.LENGTH_SHORT).show();
             }
         });
@@ -138,13 +163,6 @@ public class export_calendar extends AppCompatActivity  {
 
         //add filter
         addfilte();
-
-        l1= findViewById(R.id.Linear_storge);
-        l2= findViewById(R.id.Liner_filter);
-        l3=findViewById(R.id.linear_export);
-
-
-
         img_filter.setOnClickListener(new View.OnClickListener() {
             boolean visilble;
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -184,32 +202,42 @@ public class export_calendar extends AppCompatActivity  {
         adapter.setOnItemClickListener(new RecyclerView_adapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                Bitmap bitmap= loadBitmapFromView(relativeLayout);
+                Bitmap bitmap=bitmap_nochange;
+                Log.d("AAA","aaa:"+bitmap);
+
+
               switch (arrayList_filter.get(position).getFiltername())
               {
                   case "gray":
-                      img.setImageBitmap(ImageFilter.applyFilter(bitmap,ImageFilter.Filter.GRAY));
+                      img.setImageBitmap(bitmap_nochange);
+                      img.setImageBitmap(ImageFilter.applyFilter(loadBitmapFromView(relativeLayout),ImageFilter.Filter.GRAY));
                       break;
                   case "Light":
-                      img.setImageBitmap(ImageFilter.applyFilter(bitmap,ImageFilter.Filter.LIGHT));
+                      img.setImageBitmap(bitmap_nochange);
+                      img.setImageBitmap(ImageFilter.applyFilter(loadBitmapFromView(relativeLayout),ImageFilter.Filter.LIGHT));
                       break;
                   case "Oil":
-                      img.setImageBitmap(ImageFilter.applyFilter(bitmap,ImageFilter.Filter.RELIEF));
+                      img.setImageBitmap(bitmap_nochange);
+                      img.setImageBitmap(ImageFilter.applyFilter(loadBitmapFromView(relativeLayout),ImageFilter.Filter.RELIEF));
                       break;
                   case "Old":
-                      img.setImageBitmap(ImageFilter.applyFilter(bitmap,ImageFilter.Filter.OLD));
+                      img.setImageBitmap(bitmap_nochange);
+                      img.setImageBitmap(ImageFilter.applyFilter(loadBitmapFromView(relativeLayout),ImageFilter.Filter.OLD));
                       break;
                   case "Tv":
-                      img.setImageBitmap(ImageFilter.applyFilter(bitmap,ImageFilter.Filter.TV));
+                      img.setImageBitmap(bitmap_nochange);
+                      img.setImageBitmap(ImageFilter.applyFilter(loadBitmapFromView(relativeLayout),ImageFilter.Filter.TV));
                       break;
                   case "Avarange":
-                      img.setImageBitmap(ImageFilter.applyFilter(bitmap,ImageFilter.Filter.AVERAGE_BLUR));
+                      img.setImageBitmap(bitmap_nochange);
+                      img.setImageBitmap(ImageFilter.applyFilter(loadBitmapFromView(relativeLayout),ImageFilter.Filter.SOFT_GLOW));
                       break;
                   case "Gaussain":
-                      img.setImageBitmap(ImageFilter.applyFilter(bitmap,ImageFilter.Filter.GAUSSIAN_BLUR));
+                      img.setImageBitmap(bitmap_nochange);
+                      img.setImageBitmap(ImageFilter.applyFilter(loadBitmapFromView(relativeLayout),ImageFilter.Filter.GAUSSIAN_BLUR));
                       break;
                   default:
-                      img.setImageBitmap(bitmap);
+                      img.setImageBitmap(bitmap_nochange);
               }
             }
         });
@@ -217,6 +245,13 @@ public class export_calendar extends AppCompatActivity  {
 
     }
 
+    public static Bitmap loadBitmapFromView1(View v) {
+        Bitmap b = Bitmap.createBitmap( v.getLayoutParams().width, v.getLayoutParams().height, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(b);
+        v.layout(v.getLeft(), v.getTop(), v.getRight(), v.getBottom());
+        v.draw(c);
+        return b;
+    }
 
     //get image from view
     public static Bitmap loadBitmapFromView(View v) {
@@ -251,29 +286,84 @@ public class export_calendar extends AppCompatActivity  {
     }
 
     //save as storge
-    private void saveImage(Bitmap bitmap1) {
-        OutputStream outputStream=null;
-        String fileName=String.format("%d.png",System.currentTimeMillis());
-        File outFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath()
-                +"/Pictures",fileName);
-        try {
-           outputStream=new FileOutputStream(outFile);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        bitmap1.compress(Bitmap.CompressFormat.PNG,100,outputStream);
-        try {
-            outputStream.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            outputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+//    private void saveImage(Bitmap bitmap1) {
+//        OutputStream outputStream=null;
+//        String fileName=String.format("%d.png",System.currentTimeMillis());
+//        File outFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath()
+//                +"/Pictures",fileName);
+//        try {
+//           outputStream=new FileOutputStream(outFile);
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
+//        bitmap1.compress(Bitmap.CompressFormat.PNG,100,outputStream);
+//        try {
+//            outputStream.flush();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        try {
+//            outputStream.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
+    
+    //save bitmap
+    private void saveImage11(Bitmap bitmap) {
+        if (android.os.Build.VERSION.SDK_INT >= 29) {
+            ContentValues values = contentValues();
+            values.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/" + getString(R.string.app_name));
+            values.put(MediaStore.Images.Media.IS_PENDING, true);
+
+            Uri uri = this.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+            if (uri != null) {
+                try {
+                    saveImageToStream(bitmap, this.getContentResolver().openOutputStream(uri));
+                    values.put(MediaStore.Images.Media.IS_PENDING, false);
+                    this.getContentResolver().update(uri, values, null, null);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        } else {
+            File directory = new File(Environment.getExternalStorageDirectory().toString() + '/' + getString(R.string.app_name));
+
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+            String fileName = System.currentTimeMillis() + ".png";
+            File file = new File(directory, fileName);
+            try {
+                saveImageToStream(bitmap, new FileOutputStream(file));
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Images.Media.DATA, file.getAbsolutePath());
+                this.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
         }
     }
-
+    private ContentValues contentValues() {
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
+        values.put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
+        }
+        return values;
+    }private void saveImageToStream(Bitmap bitmap, OutputStream outputStream) {
+        if (outputStream != null) {
+            try {
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                outputStream.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 
     // create uri
