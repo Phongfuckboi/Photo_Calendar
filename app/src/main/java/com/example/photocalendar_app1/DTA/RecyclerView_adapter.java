@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,16 +32,19 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class RecyclerView_adapter extends RecyclerView.Adapter<RecyclerView_adapter.viewholder> {
 
 
-    private ArrayList<com.example.photocalendar_app1.DTO.Filter> arrayList_filter;
+    private ArrayList<Filter> arrayList_filter;
     private Context context;
-    private  OnItemClickListener onItemClickListener;
+    private OnItemClickListener mlisten;
+
+    public void setOnItemClickListener(OnItemClickListener listener){
+        this.mlisten=listener;
+    }
 
 
-    public RecyclerView_adapter(export_calendar context, ArrayList<com.example.photocalendar_app1.DTO.Filter> arrayList_filter,OnItemClickListener onItemClickListener) {
+
+    public RecyclerView_adapter(Context context, ArrayList<Filter> arrayList_filter) {
         this.arrayList_filter = arrayList_filter;
         this.context = context;
-        this.onItemClickListener=onItemClickListener;
-
     }
 
     @NonNull
@@ -47,18 +52,14 @@ public class RecyclerView_adapter extends RecyclerView.Adapter<RecyclerView_adap
     @Override
     public viewholder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
         View view= LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_list_item,parent,false);
-
-        return new viewholder(view,onItemClickListener);
+        return new viewholder(view,mlisten);
     }
-
     @Override
     public void onBindViewHolder(@NonNull @NotNull RecyclerView_adapter.viewholder holder, int position) {
         Filter filter= arrayList_filter.get(position);
-        Glide.with(context)
-                .asBitmap()
-                .load(arrayList_filter.get(position)).into(holder.circleImageView);
+        holder.circleImageView.setImageResource(filter.getImgae_frame());
+        holder.text_namefilter.setText(filter.getFiltername());
 
-       holder.text_namefilter.setText(filter.getFiltername());
     }
 
 
@@ -67,27 +68,34 @@ public class RecyclerView_adapter extends RecyclerView.Adapter<RecyclerView_adap
         return arrayList_filter.size();
     }
 
-    public  class  viewholder extends RecyclerView.ViewHolder implements View.OnClickListener
-    {
+
+    public static class  viewholder extends RecyclerView.ViewHolder {
 
         CircleImageView circleImageView;
         TextView text_namefilter;
-       OnItemClickListener onItemClickListener;
-        public viewholder(@NonNull @NotNull View itemView , final OnItemClickListener onItemClickListener) {
+
+        public viewholder(@NonNull @NotNull View itemView, final OnItemClickListener listener) {
             super(itemView);
-            circleImageView= itemView.findViewById(R.id.image_view);
-            text_namefilter= itemView.findViewById(R.id.name);
+            circleImageView = itemView.findViewById(R.id.image_view);
+            text_namefilter = itemView.findViewById(R.id.name);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (listener!=null){
+                        int position=getAdapterPosition();
+                        if (position!=RecyclerView.NO_POSITION){
+                            listener.onItemClick(position);
+                        }
+                    }
+                }
+            });
 
-            itemView.setOnClickListener(this);
-        }
 
-        @Override
-        public void onClick(View v) {
-            onItemClickListener.onItemClick((getAdapterPosition()));
-        }
+
     }
-    public interface OnItemClickListener{
 
+    }
+    public interface OnItemClickListener {
         void onItemClick(int position);
     }
 }

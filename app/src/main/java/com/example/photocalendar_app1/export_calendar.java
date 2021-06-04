@@ -8,17 +8,22 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -29,6 +34,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.photocalendar_app1.DTA.RecyclerView_adapter;
 import com.example.photocalendar_app1.DTO.Filter;
 
+import net.alhazmy13.imagefilter.ImageFilter;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -37,7 +44,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class export_calendar extends AppCompatActivity implements RecyclerView_adapter.OnItemClickListener {
+public class export_calendar extends AppCompatActivity  {
 
 
     private static final String TAG = "AAA";
@@ -46,13 +53,14 @@ public class export_calendar extends AppCompatActivity implements RecyclerView_a
     private ImageView img_cam , img_gall, img_save, img_share, img_filter;
     private final static int CAMERA_REQUEST_CODE = 1;
     private final static int GALLERLY_REQUEST_CODE = 11;
-    private ArrayList<String> arrayList_name=new ArrayList<>();
-    private  ArrayList<String>arrayList_image=new ArrayList<>();
+    String[] arraylist_namefilter={"gray","Light","Oil","Old","Tv","Avarange","Gaussain"};
+    int[] arrayList_image={R.drawable.gray,R.drawable.light,R.drawable.oil,R.drawable.old,R.drawable.tv,R.drawable.average,R.drawable.gaussian};
     private ArrayList<Filter> arrayList_filter;
     public  RecyclerView_adapter recyclerView_adapter;
-    LinearLayout l1,l2;
+    RelativeLayout relativeLayout;
+    LinearLayout l1,l2,l3;
     int i=1;
-    int k=0;
+    int k=2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,8 +71,11 @@ public class export_calendar extends AppCompatActivity implements RecyclerView_a
         img_share= findViewById(R.id.img_share);
         img_filter=findViewById(R.id.img_filter);
         img_gall= findViewById(R.id.img_gallerly);
-        RelativeLayout relativeLayout= findViewById(R.id.real);
+        relativeLayout = findViewById(R.id.real);
         img_cam= findViewById(R.id.img_camara);
+
+
+
 
 
         //lay kich thuuoc goc cua man hinh
@@ -74,13 +85,13 @@ public class export_calendar extends AppCompatActivity implements RecyclerView_a
         raRelativeLayout.setLayoutParams(params);
         //
 
-        Bitmap bmp = null;
 
         //get imgae_frame
+        Bitmap bmp = null;
         String filename = getIntent().getStringExtra("img_frame");
         Bundle bundle=getIntent().getExtras();
-       if(bundle!=null)
-       {
+        if(bundle!=null)
+        {
            try {
                int a= bundle.getInt("img_frame");
                Log.d("AAA",""+a);
@@ -99,16 +110,13 @@ public class export_calendar extends AppCompatActivity implements RecyclerView_a
         }
 
 
-
-
-
         // save imgae
         img_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-               Bitmap bm= loadBitmapFromView(relativeLayout);
-               Log.d("AAA",""+bm);
+                Bitmap bm= loadBitmapFromView(relativeLayout);
+                Log.d("AAA",""+bm);
                 saveImage(bm);
                 Toast.makeText( export_calendar.this, "Saved", Toast.LENGTH_SHORT).show();
             }
@@ -117,6 +125,7 @@ public class export_calendar extends AppCompatActivity implements RecyclerView_a
 
         // share image with other app
         img_share.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
                 Bitmap bitmap= loadBitmapFromView(relativeLayout);
@@ -132,12 +141,23 @@ public class export_calendar extends AppCompatActivity implements RecyclerView_a
 
         l1= findViewById(R.id.Linear_storge);
         l2= findViewById(R.id.Liner_filter);
-        l2.setVisibility(View.GONE);
+        l3=findViewById(R.id.linear_export);
+
+
+
         img_filter.setOnClickListener(new View.OnClickListener() {
+            boolean visilble;
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onClick(View v) {
-                l1.setVisibility(View.GONE);
-                l2.setVisibility(View.VISIBLE);
+
+                TransitionManager.beginDelayedTransition(l3);
+                visilble=!visilble;
+
+                l2.setVisibility(visilble ? View.VISIBLE: View.GONE);
+                l1.setVisibility(visilble ? View.GONE: View.VISIBLE);
+
+
             }
         });
 
@@ -147,46 +167,55 @@ public class export_calendar extends AppCompatActivity implements RecyclerView_a
 
     private void addfilte() {
 
-        arrayList_image.add("https://cloud.githubusercontent.com/assets/4659608/13037677/6060dfe4-d397-11e5-8d50-0cf960914a8b.png");
-        arrayList_name.add("Gray");
-
-        arrayList_image.add("https://cloud.githubusercontent.com/assets/4659608/13037676/605da3c4-d397-11e5-93cb-22a4895e59e2.png");
-        arrayList_name.add("Relief");
-
-        arrayList_image.add("https://cloud.githubusercontent.com/assets/4659608/13037708/0cb05126-d398-11e5-9b70-09cc415ac791.png");
-        arrayList_name.add("Average blur");
-
-        arrayList_image.add("https://cloud.githubusercontent.com/assets/4659608/13037707/0cafb996-d398-11e5-9610-48467208441b.png");
-        arrayList_name.add("OIL");
-
-        arrayList_image.add("https://cloud.githubusercontent.com/assets/4659608/13037677/6060dfe4-d397-11e5-8d50-0cf960914a8b.png");
-        arrayList_name.add("NEON");
-
-        arrayList_image.add("https://cloud.githubusercontent.com/assets/4659608/13060886/9f6c03a4-d445-11e5-9771-36bf3e20591f.png");
-        arrayList_name.add("Pixelate");
-
         arrayList_filter = new ArrayList<>();
-        for (int i=0; i<arrayList_image.size(); i++)
+        for (int i=0; i<arrayList_image.length; i++)
         {
             Filter filter =new Filter();
-            filter.setFiltername(arrayList_name.get(i));
-            filter.setImgae_frame(arrayList_image.get(i));
+            filter.setFiltername(arraylist_namefilter[i]);
+            filter.setImgae_frame(arrayList_image[i]);
             arrayList_filter.add(filter);
         }
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(layoutManager);
-        RecyclerView_adapter adapter = new RecyclerView_adapter(this, arrayList_filter,this);
+        RecyclerView_adapter adapter = new RecyclerView_adapter(this, arrayList_filter);
         recyclerView.setAdapter(adapter);
+        adapter.setOnItemClickListener(new RecyclerView_adapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                Bitmap bitmap= loadBitmapFromView(relativeLayout);
+              switch (arrayList_filter.get(position).getFiltername())
+              {
+                  case "gray":
+                      img.setImageBitmap(ImageFilter.applyFilter(bitmap,ImageFilter.Filter.GRAY));
+                      break;
+                  case "Light":
+                      img.setImageBitmap(ImageFilter.applyFilter(bitmap,ImageFilter.Filter.LIGHT));
+                      break;
+                  case "Oil":
+                      img.setImageBitmap(ImageFilter.applyFilter(bitmap,ImageFilter.Filter.RELIEF));
+                      break;
+                  case "Old":
+                      img.setImageBitmap(ImageFilter.applyFilter(bitmap,ImageFilter.Filter.OLD));
+                      break;
+                  case "Tv":
+                      img.setImageBitmap(ImageFilter.applyFilter(bitmap,ImageFilter.Filter.TV));
+                      break;
+                  case "Avarange":
+                      img.setImageBitmap(ImageFilter.applyFilter(bitmap,ImageFilter.Filter.AVERAGE_BLUR));
+                      break;
+                  case "Gaussain":
+                      img.setImageBitmap(ImageFilter.applyFilter(bitmap,ImageFilter.Filter.GAUSSIAN_BLUR));
+                      break;
+                  default:
+                      img.setImageBitmap(bitmap);
+              }
+            }
+        });
+
 
     }
-
-    private void initRecycirleView() {
-
-
-    }
-
 
 
     //get image from view
@@ -221,19 +250,6 @@ public class export_calendar extends AppCompatActivity implements RecyclerView_a
         return bitmap;
     }
 
-    // Save bitmap as storge
-//    public static File savebitmap(Bitmap bmp) throws IOException {
-//        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-//        bmp.compress(Bitmap.CompressFormat.JPEG, 60, bytes);
-//        File f = new File(Environment.getExternalStorageDirectory()
-//                + File.separator + bmp);
-//        f.createNewFile();
-//        FileOutputStream fo = new FileOutputStream(f);
-//        fo.write(bytes.toByteArray());
-//        fo.close();
-//        return f;
-//
-
     //save as storge
     private void saveImage(Bitmap bitmap1) {
         OutputStream outputStream=null;
@@ -257,16 +273,7 @@ public class export_calendar extends AppCompatActivity implements RecyclerView_a
             e.printStackTrace();
         }
     }
-    // pick imagre form gallerly
-//    private void pickimagegallerly() {
-//        img_gall.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//               Intent intent_gallerly = new Intent(Intent.ACTION_PICK,  android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-//               startActivityForResult(intent_gallerly, GALLERLY_REQUEST_CODE);
-//            }
-//        });
-//    }
+
 
 
     // create uri
@@ -396,9 +403,5 @@ public class export_calendar extends AppCompatActivity implements RecyclerView_a
     }
 
 
-    @Override
-    public void onItemClick(int position) {
-        Toast.makeText(export_calendar.this,"ok",Toast.LENGTH_SHORT).show();
 
-    }
 }

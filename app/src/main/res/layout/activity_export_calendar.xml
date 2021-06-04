@@ -7,6 +7,7 @@
     tools:context=".export_calendar"
     android:orientation="vertical"
     android:background="@drawable/backgr_gird"
+    android:id="@+id/linear_export"
     >
 
 
@@ -38,6 +39,7 @@
             android:id="@+id/img_filter"
             android:src="@drawable/ic_outline_brush_24"
             android:layout_alignParentLeft="true"/>
+
 
     </RelativeLayout>
 
@@ -96,12 +98,11 @@
        android:layout_height="wrap_content"
        android:orientation="vertical">
        <LinearLayout
-
+            android:layout_marginTop="5dp"
            android:id="@+id/Linear_storge"
            android:layout_width="match_parent"
            android:layout_height="wrap_content"
            android:orientation="horizontal"
-           android:layout_marginTop="20dp"
            android:gravity="center"
            >
            <ImageView
@@ -123,6 +124,7 @@
                android:layout_alignParentBottom="true"/>
        </LinearLayout>
        <LinearLayout
+           android:visibility="gone"
            android:id="@+id/Liner_filter"
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"

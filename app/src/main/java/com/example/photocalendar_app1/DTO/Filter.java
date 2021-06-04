@@ -4,14 +4,14 @@ import android.graphics.Bitmap;
 
 public class Filter {
 
-    String imgae_filter;
+    int imgae_filter;
     String filtername;
 
-    public String getImgae_frame() {
+    public int getImgae_frame() {
         return imgae_filter;
     }
 
-    public void setImgae_frame(String imgae_filter) {
+    public void setImgae_frame(int imgae_filter) {
         this.imgae_filter = imgae_filter;
     }
 
