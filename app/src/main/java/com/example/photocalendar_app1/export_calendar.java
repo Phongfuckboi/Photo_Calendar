@@ -3,15 +3,11 @@ package com.example.photocalendar_app1;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,14 +15,11 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.transition.TransitionManager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Switch;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
@@ -39,8 +32,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.photocalendar_app1.DTA.RecyclerView_adapter;
 import com.example.photocalendar_app1.DTO.Filter;
+import com.mukesh.image_processing.ImageProcessor;
 
 import net.alhazmy13.imagefilter.ImageFilter;
+
+import org.wysaid.view.ImageGLSurfaceView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -59,15 +55,20 @@ public class export_calendar extends AppCompatActivity  {
     private ImageView img_cam , img_gall, img_save, img_share, img_filter;
     private final static int CAMERA_REQUEST_CODE = 1;
     private final static int GALLERLY_REQUEST_CODE = 11;
-    String[] arraylist_namefilter={"gray","Light","Oil","Old","Tv","Avarange","Gaussain"};
-    int[] arrayList_image={R.drawable.gray,R.drawable.light,R.drawable.oil,R.drawable.old,R.drawable.tv,R.drawable.average,R.drawable.gaussian};
+    String[] arraylist_namefilter={"none","gray","Light","Oil","Old","Tv","Avarange","Gaussain"};
+    int[] arrayList_image={R.drawable.filternone,R.drawable.gray,R.drawable.light,R.drawable.oil,R.drawable.old,R.drawable.tv,R.drawable.average,R.drawable.gaussian};
     private ArrayList<Filter> arrayList_filter;
     public  RecyclerView_adapter recyclerView_adapter;
-    RelativeLayout relativeLayout;
-    LinearLayout l1,l2,l3;
-    int i=1;
-    int k=2;
-    Bitmap bitmap_nochange;
+    private RelativeLayout relativeLayout;
+    private LinearLayout l1,l2;
+    RelativeLayout l3;
+    private Bitmap bitmap_nochange;
+    SeekBar seekBar_filter;
+    private ImageGLSurfaceView mImageView;
+    ImageProcessor processor;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,21 +81,21 @@ public class export_calendar extends AppCompatActivity  {
         img_gall= findViewById(R.id.img_gallerly);
         relativeLayout = findViewById(R.id.real);
         img_cam= findViewById(R.id.img_camara);
-
         l1= findViewById(R.id.Linear_storge);
         l2= findViewById(R.id.Liner_filter);
         l3=findViewById(R.id.linear_export);
+        seekBar_filter= findViewById(R.id.seekBar);
 
-
-
+         processor = new ImageProcessor();
 
 
         //lay kich thuuoc goc cua man hinh
 
         int w = getResources().getDisplayMetrics().widthPixels;
-        LinearLayout.LayoutParams params= new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (w*4)/3);
-        RelativeLayout raRelativeLayout= findViewById(R.id.real);
-        raRelativeLayout.setLayoutParams(params);
+        Log.d("AAA","weigth"+w);
+//        RelativeLayout.LayoutParams params= new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (w*4)/3);
+//        RelativeLayout raRelativeLayout= findViewById(R.id.real);
+//        raRelativeLayout.setLayoutParams(params);
         //
 
 
@@ -114,6 +115,7 @@ public class export_calendar extends AppCompatActivity  {
            }
        }
 
+
        //ckeck per mission
         if(checkAndRequestPermissions(export_calendar.this))
         {
@@ -131,8 +133,6 @@ public class export_calendar extends AppCompatActivity  {
 
             }
         });
-
-
 
 
         // save imgae
@@ -163,26 +163,56 @@ public class export_calendar extends AppCompatActivity  {
 
         //add filter
         addfilte();
+        seekBar_filter.setVisibility(View.GONE);
+
+
+
         img_filter.setOnClickListener(new View.OnClickListener() {
             boolean visilble;
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onClick(View v) {
-
+                seekBar_filter.setVisibility(View.GONE);
                 TransitionManager.beginDelayedTransition(l3);
                 visilble=!visilble;
-
                 l2.setVisibility(visilble ? View.VISIBLE: View.GONE);
                 l1.setVisibility(visilble ? View.GONE: View.VISIBLE);
 
-
             }
+
+
         });
 
 
 
     }
 
+    private void seekBarfilter() {
+        seekBar_filter.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                seekBar.setMax(200);
+                float intensity = progress / (float)seekBar.getMax();
+
+
+
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+    }
+
+    //add item Recyclerview and event click filter
     private void addfilte() {
 
         arrayList_filter = new ArrayList<>();
@@ -208,49 +238,53 @@ public class export_calendar extends AppCompatActivity  {
 
               switch (arrayList_filter.get(position).getFiltername())
               {
+                  case "none":
+                      seekBar_filter.setVisibility(View.VISIBLE);
+                      img.setImageBitmap(bitmap_nochange);
+                      break;
                   case "gray":
+                      seekBar_filter.setVisibility(View.VISIBLE);
                       img.setImageBitmap(bitmap_nochange);
                       img.setImageBitmap(ImageFilter.applyFilter(loadBitmapFromView(relativeLayout),ImageFilter.Filter.GRAY));
                       break;
                   case "Light":
+                      seekBar_filter.setVisibility(View.VISIBLE);
                       img.setImageBitmap(bitmap_nochange);
                       img.setImageBitmap(ImageFilter.applyFilter(loadBitmapFromView(relativeLayout),ImageFilter.Filter.LIGHT));
                       break;
                   case "Oil":
+                      seekBar_filter.setVisibility(View.VISIBLE);
                       img.setImageBitmap(bitmap_nochange);
                       img.setImageBitmap(ImageFilter.applyFilter(loadBitmapFromView(relativeLayout),ImageFilter.Filter.RELIEF));
                       break;
                   case "Old":
+                      seekBar_filter.setVisibility(View.VISIBLE);
                       img.setImageBitmap(bitmap_nochange);
                       img.setImageBitmap(ImageFilter.applyFilter(loadBitmapFromView(relativeLayout),ImageFilter.Filter.OLD));
                       break;
                   case "Tv":
+                      seekBar_filter.setVisibility(View.VISIBLE);
                       img.setImageBitmap(bitmap_nochange);
                       img.setImageBitmap(ImageFilter.applyFilter(loadBitmapFromView(relativeLayout),ImageFilter.Filter.TV));
                       break;
                   case "Avarange":
+                      seekBar_filter.setVisibility(View.VISIBLE);
                       img.setImageBitmap(bitmap_nochange);
                       img.setImageBitmap(ImageFilter.applyFilter(loadBitmapFromView(relativeLayout),ImageFilter.Filter.SOFT_GLOW));
                       break;
                   case "Gaussain":
+                      seekBar_filter.setVisibility(View.VISIBLE);
                       img.setImageBitmap(bitmap_nochange);
                       img.setImageBitmap(ImageFilter.applyFilter(loadBitmapFromView(relativeLayout),ImageFilter.Filter.GAUSSIAN_BLUR));
                       break;
                   default:
+
                       img.setImageBitmap(bitmap_nochange);
               }
             }
         });
 
 
-    }
-
-    public static Bitmap loadBitmapFromView1(View v) {
-        Bitmap b = Bitmap.createBitmap( v.getLayoutParams().width, v.getLayoutParams().height, Bitmap.Config.ARGB_8888);
-        Canvas c = new Canvas(b);
-        v.layout(v.getLeft(), v.getTop(), v.getRight(), v.getBottom());
-        v.draw(c);
-        return b;
     }
 
     //get image from view
@@ -286,6 +320,7 @@ public class export_calendar extends AppCompatActivity  {
     }
 
     //save as storge
+
 //    private void saveImage(Bitmap bitmap1) {
 //        OutputStream outputStream=null;
 //        String fileName=String.format("%d.png",System.currentTimeMillis());
@@ -309,7 +344,7 @@ public class export_calendar extends AppCompatActivity  {
 //        }
 //    }
     
-    //save bitmap
+    //save bitmap to storge
     private void saveImage11(Bitmap bitmap) {
         if (android.os.Build.VERSION.SDK_INT >= 29) {
             ContentValues values = contentValues();
@@ -366,7 +401,7 @@ public class export_calendar extends AppCompatActivity  {
     }
 
 
-    // create uri
+    // create uri CONTAIN  a bttmap
     private Uri saveImageshare(Bitmap image) {
         //TODO - Should be processed in another thread
         File imagesFolder = new File(getCacheDir(), "images");

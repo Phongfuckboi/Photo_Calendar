@@ -46,7 +46,14 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
     implementation 'com.intuit.sdp:sdp-android:1.0.6'
     implementation'net.alhazmy13.ImageFilters:library:0.1.2-beta'
- 
+    implementation 'com.github.mukeshsolanki:photofilter:1.0.2'
+
+    //All arch: armeabi, armeabi-v7a, arm64-v8a, x86
+    compile 'org.wysaid:gpuimage-plus:2.6.3'
+
+    //Pure graphics lib without ffmpeg. (all arch for branch 'min')
+    compile 'org.wysaid:gpuimage-plus:2.6.3-min'
+
 
 
 

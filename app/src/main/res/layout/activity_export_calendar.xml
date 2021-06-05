@@ -1,58 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".export_calendar"
-    android:orientation="vertical"
     android:background="@drawable/backgr_gird"
     android:id="@+id/linear_export"
     >
 
 
     <RelativeLayout
+        android:layout_alignParentTop="true"
         android:id="@+id/realtive_save_image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp">
         <ImageView
-            android:background="@drawable/cutom_itemclick"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:id="@+id/img_save"
-            android:src="@drawable/ic_baseline_arrow_downward_24"
+            android:src="@drawable/iconsave2"
             android:layout_alignParentRight="true"/>
         <ImageView
-            android:background="@drawable/cutom_itemclick"
+
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:id="@+id/img_share"
-            android:src="@drawable/ic_baseline_share_24"
+            android:src="@drawable/iconshare"
             android:layout_toLeftOf="@+id/img_save"
             android:layout_marginRight="70dp"
             android:layout_alignParentRight="true"/>
         <ImageView
-            android:background="@drawable/cutom_itemclick"
+
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:id="@+id/img_filter"
-            android:src="@drawable/ic_outline_brush_24"
+            android:src="@drawable/iconfilter2"
             android:layout_alignParentLeft="true"/>
 
 
     </RelativeLayout>
-
-        <RelativeLayout
-
+    <RelativeLayout
+            android:layout_centerInParent="true"
+            android:layout_below="@+id/realtive_save_image"
             android:id="@+id/real"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/_100sdp"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_alignBottom="@+id/l1"
+             android:layout_above="@+id/l1"
 
-
+        >
             <com.otaliastudios.zoom.ZoomLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:scrollbars="vertical|horizontal"
                 app:transformation="centerInside"
                 app:transformationGravity="auto"
@@ -79,7 +82,7 @@
 
                     android:id="@+id/img_user"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     />
 
             </com.otaliastudios.zoom.ZoomLayout>
@@ -88,17 +91,25 @@
                 android:id="@+id/img_mark"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:scaleType="centerInside"
+                android:scaleType="fitXY"
                 android:src="@drawable/a014"
                 android:layout_alignParentLeft="true"/>
 
+
+
         </RelativeLayout>
-   <LinearLayout
+
+
+
+    <LinearLayout
+        android:id="@+id/l1"
+       android:layout_alignParentBottom="true"
        android:layout_width="match_parent"
        android:layout_height="wrap_content"
-       android:orientation="vertical">
+       android:orientation="vertical"
+        android:layout_marginBottom="@dimen/_6sdp">
        <LinearLayout
-            android:layout_marginTop="5dp"
+           android:layout_marginTop="5dp"
            android:id="@+id/Linear_storge"
            android:layout_width="match_parent"
            android:layout_height="wrap_content"
@@ -107,8 +118,7 @@
            >
            <ImageView
                android:id="@+id/img_camara"
-               android:src="@drawable/ic_baseline_photo_camera_24"
-               android:layout_marginTop="10dp"
+               android:src="@drawable/iconcammera"
                android:layout_width="100dp"
                android:layout_height="70dp"
                android:layout_gravity="center"
@@ -117,12 +127,12 @@
                android:id="@+id/img_gallerly"
                android:layout_marginLeft="30dp"
                android:layout_gravity="center"
-               android:src="@drawable/ic_baseline_folder_shared_24"
-               android:layout_marginTop="10dp"
+               android:src="@drawable/iconga"
                android:layout_width="100dp"
                android:layout_height="70dp"
                android:layout_alignParentBottom="true"/>
        </LinearLayout>
+
        <LinearLayout
            android:visibility="gone"
            android:id="@+id/Liner_filter"
@@ -138,9 +148,12 @@
        </LinearLayout>
    </LinearLayout>
 
+    <SeekBar
+        android:layout_centerInParent="true"
+        android:layout_above="@+id/l1"
+        android:id="@+id/seekBar"
+        android:layout_width="@dimen/_200sdp"
+        android:layout_height="@dimen/_20sdp"
+        />
 
-
-
-
-
-</LinearLayout>
+</RelativeLayout>

@@ -14,8 +14,6 @@
         android:roundIcon="@drawable/image_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar" >
-        <activity android:name=".DTA.MainActivity2" >
-        </activity>
         <activity android:name=".frame_calendar_activiti" />
         <activity android:name=".export_calendar" />
         <activity android:name=".MainActivity" />
