@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Photo Calendar</string>
+    <string name="frame">Select Frame</string>
 </resources>

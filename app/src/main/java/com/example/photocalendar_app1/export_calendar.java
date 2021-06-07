@@ -57,22 +57,27 @@ public class export_calendar extends AppCompatActivity  {
     private ImageView img_cam , img_gall, img_save, img_share, img_filter;
     private final static int CAMERA_REQUEST_CODE = 1;
     private final static int GALLERLY_REQUEST_CODE = 11;
-    String[] arraylist_namefilter={"none","filter1","filter2","filter3","filter4","filter5","filter6","filter7"};
-    int[] arrayList_image={R.drawable.filternone,R.drawable.filter1,R.drawable.filter2,R.drawable.filter3,R.drawable.filter4,R.drawable.filter5,R.drawable.filter6,R.drawable.filter7};
+    private String[] arraylist_namefilter={"none","filter1","filter2","filter3","filter4","filter5","filter6","filter7","filter8","filter9","filter10"
+            ,"filter11","filter12","filter13","filter14","filter15","filter16","filter17","filter18","filter19","filter20"};
+    private int[] arrayList_image={R.drawable.filternone,R.drawable.filter1,R.drawable.filter2,R.drawable.filter3,R.drawable.filter4,R.drawable.filter5,R.drawable.filter6,R.drawable.filter7,R.drawable.filter8
+            ,R.drawable.filter9,R.drawable.filter10,R.drawable.filter11,R.drawable.filter12,R.drawable.filter13,R.drawable.filter14,R.drawable.filter15,R.drawable.filter16
+            ,R.drawable.filter17,R.drawable.filter18,R.drawable.filter19,R.drawable.filter20};
     private ArrayList<Filter> arrayList_filter;
     public  RecyclerView_adapter recyclerView_adapter;
-    private RelativeLayout relativeLayout;
+    private RelativeLayout relativeLayout,relativeLayout_ckeck;
     private LinearLayout l1,l2;
     RelativeLayout l3;
     private Bitmap bitmap_nochange;
-    SeekBar seekBar_filter;
-    CGENativeLibrary cgeNativeLibrary;
-    CGEDeformFilterWrapper mDeformWrapper;
+    private SeekBar seekBar_filter;
+    private CGENativeLibrary cgeNativeLibrary;
+    private CGEDeformFilterWrapper mDeformWrapper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_export_calendar);
+
+        //
         img= findViewById(R.id.img_mark);
         img_user= findViewById(R.id.img_user);
         img_save= findViewById(R.id.img_save);
@@ -85,7 +90,11 @@ public class export_calendar extends AppCompatActivity  {
         l2= findViewById(R.id.Liner_filter);
         l3=findViewById(R.id.linear_export);
         seekBar_filter= findViewById(R.id.seekBar);
+        seekBar_filter.setMax(200);
 
+
+
+        //
 
         //lay kich thuuoc goc cua man hinh
 
@@ -162,11 +171,7 @@ public class export_calendar extends AppCompatActivity  {
         //add filter
         addfilte();
 
-
         seekBar_filter.setVisibility(View.GONE);
-
-
-
         img_filter.setOnClickListener(new View.OnClickListener() {
             boolean visilble;
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -183,18 +188,17 @@ public class export_calendar extends AppCompatActivity  {
 
         });
 
-
-
     }
 
+    //scroll filter.
     private Bitmap seekbarfilter(Bitmap bitmap ,String ruleString)
     {
         seekBar_filter.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onProgressChanged(SeekBar seekBar,final int progress, boolean fromUser) {
-                seekBar.setMax(200);
-                seekBar.setMin(0);
+
                 if(progress<10)
                 {
                     img.setImageBitmap(bitmap);
@@ -241,8 +245,7 @@ public class export_calendar extends AppCompatActivity  {
             public void onItemClick(int position) {
                 Bitmap bitmap=bitmap_nochange;
                 Log.d("AAA","aaa:"+bitmap);
-
-
+                seekBar_filter.setProgress(100);
               switch (arrayList_filter.get(position).getFiltername())
               {
                   case "none":
@@ -254,44 +257,145 @@ public class export_calendar extends AppCompatActivity  {
                       img.setImageBitmap(bitmap_nochange);
                       String ruleString1="@adjust hsv -0.5 -0.5 -0.5 -0.5 -0.5 -0.5 @curve R(0, 0)(129, 148)(255, 255)G(0, 0)(92, 77)(175, 189)(255, 255)B(0, 0)(163, 144)(255, 255)" ;
                       img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString1));
+                      img.setImageBitmap(CGENativeLibrary.filterImage_MultipleEffects(bitmap_nochange,ruleString1,1));
                       break;
                   case "filter2":
                       seekBar_filter.setVisibility(View.VISIBLE);
                       img.setImageBitmap(bitmap_nochange);
                       String ruleString2="@adjust hsv 0.3 -0.5 -0.3 0 0.35 -0.2 @curve R(0, 0)(111, 163)(255, 255)G(0, 0)(72, 56)(155, 190)(255, 255)B(0, 0)(103, 70)(212, 244)(255, 255)";
                       img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString2));
+                      img.setImageBitmap(CGENativeLibrary.filterImage_MultipleEffects(bitmap_nochange,ruleString2,1));
                       break;
                   case "filter3":
                       seekBar_filter.setVisibility(View.VISIBLE);
                       img.setImageBitmap(bitmap_nochange);
                       String ruleString3="@curve R(40, 40)(86, 148)(255, 255)G(0, 28)(67, 140)(142, 214)(255, 255)B(0, 100)(103, 176)(195, 174)(255, 255) @adjust hsv 0.32 0 -0.5 -0.2 0 -0.4";
-
                       img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString3));
+                      img.setImageBitmap(CGENativeLibrary.filterImage_MultipleEffects(bitmap,ruleString3,1));
+
                       break;
                   case "filter4":
                       seekBar_filter.setVisibility(View.VISIBLE);
                       img.setImageBitmap(bitmap_nochange);
                       String ruleString4="@curve R(0, 0)(63, 101)(200, 84)(255, 255)G(0, 0)(86, 49)(180, 183)(255, 255)B(0, 0)(19, 17)(66, 41)(97, 92)(137, 156)(194, 211)(255, 255)RGB(0, 0)(82, 36)(160, 183)(255, 255) ";
                       img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString4));
+                      img.setImageBitmap(CGENativeLibrary.filterImage_MultipleEffects(bitmap,ruleString4,1));;
                       break;
                   case "filter5":
                       seekBar_filter.setVisibility(View.VISIBLE);
                       img.setImageBitmap(bitmap_nochange);
                       String ruleString5="@adjust exposure 0.98 ";
                       img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString5));
+                      img.setImageBitmap(CGENativeLibrary.filterImage_MultipleEffects(bitmap,ruleString5,1));
                       break;
                   case "filter6":
                       seekBar_filter.setVisibility(View.VISIBLE);
                       img.setImageBitmap(bitmap_nochange);
                       String ruleString6="#unpack @blur lerp 0.75";
                       img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString6));
+                      img.setImageBitmap(CGENativeLibrary.filterImage_MultipleEffects(bitmap,ruleString6,1));
                       break;
                   case "filter7":
                       seekBar_filter.setVisibility(View.VISIBLE);
                       img.setImageBitmap(bitmap_nochange);
                       String ruleString7="#unpack @dynamic wave 1";
                       img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString7));
+                      img.setImageBitmap(CGENativeLibrary.filterImage_MultipleEffects(bitmap,ruleString7,1));
                       break;
+                  case "filter8":
+                      seekBar_filter.setVisibility(View.VISIBLE);
+                      img.setImageBitmap(bitmap_nochange);
+                      String ruleString8="@style haze 0.5 -0.14 1 0.8 1 ";
+                      img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString8));
+                      img.setImageBitmap(CGENativeLibrary.filterImage_MultipleEffects(bitmap,ruleString8,1));
+                      break;
+                  case "filter9":
+                      seekBar_filter.setVisibility(View.VISIBLE);
+                      img.setImageBitmap(bitmap_nochange);
+                      String ruleString9="@curve G(0, 0)(101, 127)(255, 255) @pixblend colordodge 0.937 0.482 0.835 1 20";
+                      img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString9));
+                      img.setImageBitmap(CGENativeLibrary.filterImage_MultipleEffects(bitmap,ruleString9,1));
+                      break;
+                  case "filter10":
+                      seekBar_filter.setVisibility(View.VISIBLE);
+                      img.setImageBitmap(bitmap_nochange);
+                      String ruleString10="@curve R(0, 0)(117, 95)(155, 171)(179, 225)(255, 255)G(0, 0)(94, 66)(155, 176)(255, 255)B(0, 0)(48, 59)(141, 130)(255, 224)";
+                      img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString10));
+                      img.setImageBitmap(CGENativeLibrary.filterImage_MultipleEffects(bitmap,ruleString10,1));
+                      break;
+                  case "filter11":
+                      seekBar_filter.setVisibility(View.VISIBLE);
+                      img.setImageBitmap(bitmap_nochange);
+                      String ruleString11=  "@curve R(0, 4)(255, 244)G(0, 0)(255, 255)B(0, 84)(255, 194)";
+                      img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString11));
+                      img.setImageBitmap(CGENativeLibrary.filterImage_MultipleEffects(bitmap,ruleString11,1));
+                      break;
+                  case "filter12":
+                      seekBar_filter.setVisibility(View.VISIBLE);
+                      img.setImageBitmap(bitmap_nochange);
+                      String ruleString12= "@curve R(14, 0)(51, 42)(135, 138)(191, 202)(234, 255)G(11, 6)(78, 77)(178, 185)(242, 250)B(11, 0)(22, 10)(72, 60)(171, 162)(217, 209)(255, 255)";
+                      img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString12));
+                      img.setImageBitmap(CGENativeLibrary.filterImage_MultipleEffects(bitmap,ruleString12,1));
+                      break;
+                  case "filter13":
+                      seekBar_filter.setVisibility(View.VISIBLE);
+                      img.setImageBitmap(bitmap_nochange);
+                      String ruleString13= "@curve R(17, 0)(37, 18)(75, 52)(238, 255)G(16, 0)(53, 32)(113, 92)(236, 255)B(16, 0)(80, 57)(171, 164)(235, 255)";
+                      img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString13));
+                      img.setImageBitmap(CGENativeLibrary.filterImage_MultipleEffects(bitmap,ruleString13,1));
+                      break;
+                  case "filter14":
+                      seekBar_filter.setVisibility(View.VISIBLE);
+                      img.setImageBitmap(bitmap_nochange);
+                      String ruleString14= "@curve G(0, 0)(101, 127)(255, 255) @pixblend colordodge 0.937 0.482 0.835 1 20";
+                      img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString14));
+                      img.setImageBitmap(CGENativeLibrary.filterImage_MultipleEffects(bitmap,ruleString14,1));
+                      break;
+                  case "filter15":
+                      seekBar_filter.setVisibility(View.VISIBLE);
+                      img.setImageBitmap(bitmap_nochange);
+                      String ruleString15="@curve R(0, 0)(96, 61)(154, 177)(255, 255) @pixblend overlay 0.357 0.863 0.882 1 40";
+                      img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString15));
+                      img.setImageBitmap(CGENativeLibrary.filterImage_MultipleEffects(bitmap,ruleString15,1));
+                      break;
+                  case "filter16":
+                      seekBar_filter.setVisibility(View.VISIBLE);
+                      img.setImageBitmap(bitmap_nochange);
+                      String ruleString16=  "@curve R(0, 0)(71, 74)(164, 165)(255, 255) @pixblend overlay 0.357 0.863 0.882 1 40";
+                      img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString16));
+                      img.setImageBitmap(CGENativeLibrary.filterImage_MultipleEffects(bitmap,ruleString16,1));
+                      break;
+                  case "filter17":
+                      seekBar_filter.setVisibility(View.VISIBLE);
+                      img.setImageBitmap(bitmap_nochange);
+                      String ruleString17= "@curve RGB(0,255)(255,0) @style cm mapping0.jpg 80 80 8 3";
+                      img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString17));
+                      img.setImageBitmap(CGENativeLibrary.filterImage_MultipleEffects(bitmap,ruleString17,1));
+                      break;
+                  case "filter18":
+                      seekBar_filter.setVisibility(View.VISIBLE);
+                      img.setImageBitmap(bitmap_nochange);
+                      String ruleString18="@adjust hsv -0.4 -0.64 -1.0 -0.4 -0.88 -0.88 @curve R(0, 0)(119, 160)(255, 255)G(0, 0)(83, 65)(163, 170)(255, 255)B(0, 0)(147, 131)(255, 255)";
+                      img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString18));
+                      img.setImageBitmap(CGENativeLibrary.filterImage_MultipleEffects(bitmap,ruleString18,1));
+                      break;
+                  case "filter19":
+                      seekBar_filter.setVisibility(View.VISIBLE);
+                      img.setImageBitmap(bitmap_nochange);
+                      String ruleString19="@adjust hsv -1 -1 -1 -1 -1 -1";
+                      img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString19));
+                      img.setImageBitmap(CGENativeLibrary.filterImage_MultipleEffects(bitmap,ruleString19,1));
+                      break;
+                  case "filter20":
+                      seekBar_filter.setVisibility(View.VISIBLE);
+                      img.setImageBitmap(bitmap_nochange);
+                      String ruleString20="@adjust saturation 0 @curve R(9, 13)(37, 13)(63, 23)(81, 43)(91, 58)(103, 103)(159, 239)(252, 242)G(3, 20)(29, 20)(56, 19)(77, 37)(107, 108)(126, 184)(137, 217)(150, 248)(182, 284)(255, 255)B(45, 17)(78, 51)(96, 103)(131, 202)(255, 255)";
+                      img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString20));
+                      img.setImageBitmap(CGENativeLibrary.filterImage_MultipleEffects(bitmap,ruleString20,1));
+                      break;
+
+
+
                   default:
                       img.setImageBitmap(bitmap_nochange);
               }

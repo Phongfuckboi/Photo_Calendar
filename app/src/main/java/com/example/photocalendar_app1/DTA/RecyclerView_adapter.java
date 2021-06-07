@@ -58,7 +58,8 @@ public class RecyclerView_adapter extends RecyclerView.Adapter<RecyclerView_adap
     public void onBindViewHolder(@NonNull @NotNull RecyclerView_adapter.viewholder holder, int position) {
         Filter filter= arrayList_filter.get(position);
         holder.circleImageView.setImageResource(filter.getImgae_frame());
-        holder.text_namefilter.setText(filter.getFiltername());
+        holder.imageView.setVisibility(View.GONE);
+
 
     }
 
@@ -72,21 +73,22 @@ public class RecyclerView_adapter extends RecyclerView.Adapter<RecyclerView_adap
     public static class  viewholder extends RecyclerView.ViewHolder {
 
         CircleImageView circleImageView;
-        TextView text_namefilter;
-
+        ImageView imageView;
         public viewholder(@NonNull @NotNull View itemView, final OnItemClickListener listener) {
             super(itemView);
+            imageView=itemView.findViewById(R.id.img_ckeck);
             circleImageView = itemView.findViewById(R.id.image_view);
-            text_namefilter = itemView.findViewById(R.id.name);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+
                     if (listener!=null){
                         int position=getAdapterPosition();
                         if (position!=RecyclerView.NO_POSITION){
                             listener.onItemClick(position);
                         }
                     }
+
                 }
             });
 

@@ -152,8 +152,11 @@
         android:layout_centerInParent="true"
         android:layout_above="@+id/l1"
         android:id="@+id/seekBar"
+        android:scrollbarSize="@dimen/_100sdp"
         android:layout_width="@dimen/_200sdp"
         android:layout_height="@dimen/_20sdp"
+        android:layout_marginBottom="10dp"
+
         />
 
 </RelativeLayout>
