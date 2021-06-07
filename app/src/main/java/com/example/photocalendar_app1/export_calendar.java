@@ -36,6 +36,8 @@ import com.mukesh.image_processing.ImageProcessor;
 
 import net.alhazmy13.imagefilter.ImageFilter;
 
+import org.wysaid.nativePort.CGEDeformFilterWrapper;
+import org.wysaid.nativePort.CGENativeLibrary;
 import org.wysaid.view.ImageGLSurfaceView;
 
 import java.io.File;
@@ -55,8 +57,8 @@ public class export_calendar extends AppCompatActivity  {
     private ImageView img_cam , img_gall, img_save, img_share, img_filter;
     private final static int CAMERA_REQUEST_CODE = 1;
     private final static int GALLERLY_REQUEST_CODE = 11;
-    String[] arraylist_namefilter={"none","gray","Light","Oil","Old","Tv","Avarange","Gaussain"};
-    int[] arrayList_image={R.drawable.filternone,R.drawable.gray,R.drawable.light,R.drawable.oil,R.drawable.old,R.drawable.tv,R.drawable.average,R.drawable.gaussian};
+    String[] arraylist_namefilter={"none","filter1","filter2","filter3","filter4","filter5","filter6","filter7"};
+    int[] arrayList_image={R.drawable.filternone,R.drawable.filter1,R.drawable.filter2,R.drawable.filter3,R.drawable.filter4,R.drawable.filter5,R.drawable.filter6,R.drawable.filter7};
     private ArrayList<Filter> arrayList_filter;
     public  RecyclerView_adapter recyclerView_adapter;
     private RelativeLayout relativeLayout;
@@ -64,10 +66,8 @@ public class export_calendar extends AppCompatActivity  {
     RelativeLayout l3;
     private Bitmap bitmap_nochange;
     SeekBar seekBar_filter;
-    private ImageGLSurfaceView mImageView;
-    ImageProcessor processor;
-
-
+    CGENativeLibrary cgeNativeLibrary;
+    CGEDeformFilterWrapper mDeformWrapper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,8 +85,6 @@ public class export_calendar extends AppCompatActivity  {
         l2= findViewById(R.id.Liner_filter);
         l3=findViewById(R.id.linear_export);
         seekBar_filter= findViewById(R.id.seekBar);
-
-         processor = new ImageProcessor();
 
 
         //lay kich thuuoc goc cua man hinh
@@ -163,6 +161,8 @@ public class export_calendar extends AppCompatActivity  {
 
         //add filter
         addfilte();
+
+
         seekBar_filter.setVisibility(View.GONE);
 
 
@@ -187,16 +187,21 @@ public class export_calendar extends AppCompatActivity  {
 
     }
 
-    private void seekBarfilter() {
+    private Bitmap seekbarfilter(Bitmap bitmap ,String ruleString)
+    {
         seekBar_filter.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            public void onProgressChanged(SeekBar seekBar,final int progress, boolean fromUser) {
                 seekBar.setMax(200);
-                float intensity = progress / (float)seekBar.getMax();
-
-
-
-
+                seekBar.setMin(0);
+                if(progress<10)
+                {
+                    img.setImageBitmap(bitmap);
+                }
+                else {
+                    float intensity = progress/100f;
+                    img.setImageBitmap(CGENativeLibrary.filterImage_MultipleEffects(bitmap,ruleString,intensity));}
             }
 
             @Override
@@ -209,8 +214,10 @@ public class export_calendar extends AppCompatActivity  {
 
             }
         });
-
+        return bitmap;
     }
+
+
 
     //add item Recyclerview and event click filter
     private void addfilte() {
@@ -239,46 +246,53 @@ public class export_calendar extends AppCompatActivity  {
               switch (arrayList_filter.get(position).getFiltername())
               {
                   case "none":
-                      seekBar_filter.setVisibility(View.VISIBLE);
-                      img.setImageBitmap(bitmap_nochange);
+                      seekBar_filter.setVisibility(View.GONE);
+                      img.setImageBitmap(bitmap);
                       break;
-                  case "gray":
+                  case "filter1":
                       seekBar_filter.setVisibility(View.VISIBLE);
                       img.setImageBitmap(bitmap_nochange);
-                      img.setImageBitmap(ImageFilter.applyFilter(loadBitmapFromView(relativeLayout),ImageFilter.Filter.GRAY));
+                      String ruleString1="@adjust hsv -0.5 -0.5 -0.5 -0.5 -0.5 -0.5 @curve R(0, 0)(129, 148)(255, 255)G(0, 0)(92, 77)(175, 189)(255, 255)B(0, 0)(163, 144)(255, 255)" ;
+                      img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString1));
                       break;
-                  case "Light":
+                  case "filter2":
                       seekBar_filter.setVisibility(View.VISIBLE);
                       img.setImageBitmap(bitmap_nochange);
-                      img.setImageBitmap(ImageFilter.applyFilter(loadBitmapFromView(relativeLayout),ImageFilter.Filter.LIGHT));
+                      String ruleString2="@adjust hsv 0.3 -0.5 -0.3 0 0.35 -0.2 @curve R(0, 0)(111, 163)(255, 255)G(0, 0)(72, 56)(155, 190)(255, 255)B(0, 0)(103, 70)(212, 244)(255, 255)";
+                      img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString2));
                       break;
-                  case "Oil":
+                  case "filter3":
                       seekBar_filter.setVisibility(View.VISIBLE);
                       img.setImageBitmap(bitmap_nochange);
-                      img.setImageBitmap(ImageFilter.applyFilter(loadBitmapFromView(relativeLayout),ImageFilter.Filter.RELIEF));
+                      String ruleString3="@curve R(40, 40)(86, 148)(255, 255)G(0, 28)(67, 140)(142, 214)(255, 255)B(0, 100)(103, 176)(195, 174)(255, 255) @adjust hsv 0.32 0 -0.5 -0.2 0 -0.4";
+
+                      img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString3));
                       break;
-                  case "Old":
+                  case "filter4":
                       seekBar_filter.setVisibility(View.VISIBLE);
                       img.setImageBitmap(bitmap_nochange);
-                      img.setImageBitmap(ImageFilter.applyFilter(loadBitmapFromView(relativeLayout),ImageFilter.Filter.OLD));
+                      String ruleString4="@curve R(0, 0)(63, 101)(200, 84)(255, 255)G(0, 0)(86, 49)(180, 183)(255, 255)B(0, 0)(19, 17)(66, 41)(97, 92)(137, 156)(194, 211)(255, 255)RGB(0, 0)(82, 36)(160, 183)(255, 255) ";
+                      img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString4));
                       break;
-                  case "Tv":
+                  case "filter5":
                       seekBar_filter.setVisibility(View.VISIBLE);
                       img.setImageBitmap(bitmap_nochange);
-                      img.setImageBitmap(ImageFilter.applyFilter(loadBitmapFromView(relativeLayout),ImageFilter.Filter.TV));
+                      String ruleString5="@adjust exposure 0.98 ";
+                      img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString5));
                       break;
-                  case "Avarange":
+                  case "filter6":
                       seekBar_filter.setVisibility(View.VISIBLE);
                       img.setImageBitmap(bitmap_nochange);
-                      img.setImageBitmap(ImageFilter.applyFilter(loadBitmapFromView(relativeLayout),ImageFilter.Filter.SOFT_GLOW));
+                      String ruleString6="#unpack @blur lerp 0.75";
+                      img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString6));
                       break;
-                  case "Gaussain":
+                  case "filter7":
                       seekBar_filter.setVisibility(View.VISIBLE);
                       img.setImageBitmap(bitmap_nochange);
-                      img.setImageBitmap(ImageFilter.applyFilter(loadBitmapFromView(relativeLayout),ImageFilter.Filter.GAUSSIAN_BLUR));
+                      String ruleString7="#unpack @dynamic wave 1";
+                      img.setImageBitmap(seekbarfilter(loadBitmapFromView(relativeLayout),ruleString7));
                       break;
                   default:
-
                       img.setImageBitmap(bitmap_nochange);
               }
             }
