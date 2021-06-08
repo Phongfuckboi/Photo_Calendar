@@ -3,11 +3,14 @@ package com.example.photocalendar_app1;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,6 +33,7 @@ import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.photocalendar_app1.DTA.RecyclerView_adapter;
 import com.example.photocalendar_app1.DTO.Filter;
 import com.mukesh.image_processing.ImageProcessor;
@@ -40,12 +44,15 @@ import org.wysaid.nativePort.CGEDeformFilterWrapper;
 import org.wysaid.nativePort.CGENativeLibrary;
 import org.wysaid.view.ImageGLSurfaceView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class export_calendar extends AppCompatActivity  {
@@ -71,6 +78,8 @@ public class export_calendar extends AppCompatActivity  {
     private SeekBar seekBar_filter;
     private CGENativeLibrary cgeNativeLibrary;
     private CGEDeformFilterWrapper mDeformWrapper;
+    Uri imageUri;
+    ContentValues values;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -556,8 +565,16 @@ public class export_calendar extends AppCompatActivity  {
     img_cam.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Intent intent= new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-            startActivityForResult(intent,CAMERA_REQUEST_CODE);
+            values = new ContentValues();
+            values.put(MediaStore.Images.Media.TITLE, "New Picture");
+            values.put(MediaStore.Images.Media.DESCRIPTION, "From your Camera");
+            imageUri = getContentResolver().insert(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+            startActivityForResult(intent, CAMERA_REQUEST_CODE);
+//            Intent intent= new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+//            startActivityForResult(intent,CAMERA_REQUEST_CODE);
         }
     });
 
@@ -613,6 +630,32 @@ public class export_calendar extends AppCompatActivity  {
                 break;
         }
     }
+
+    public Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        Calendar c = Calendar.getInstance();
+         int m= (int) c.getTimeInMillis();
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "image"+m, null);
+
+        return Uri.parse(path);
+    }
+    public String getRealPathFromURI(Uri uri) {
+        String path = "";
+        if (getContentResolver() != null) {
+            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+            if (cursor != null) {
+                cursor.moveToFirst();
+                int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+                path = cursor.getString(idx);
+                cursor.close();
+            }
+        }
+        return path;
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -620,8 +663,19 @@ public class export_calendar extends AppCompatActivity  {
             switch (requestCode) {
                 case CAMERA_REQUEST_CODE:
                     if (resultCode == RESULT_OK && data != null) {
-                        Bitmap selectedImage = (Bitmap) data.getExtras().get("data");
-                        img_user.setImageBitmap(selectedImage);
+                        try {
+                           Bitmap thumbnail = MediaStore.Images.Media.getBitmap(
+                                    getContentResolver(), imageUri);
+                                   //img_user.setImageBitmap(thumbnail);
+
+                            Uri tempUri = getImageUri(this, thumbnail);
+                            String path= getRealPathFromURI(tempUri);
+                            img_user.setImageBitmap(thumbnail);
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
                     }
                     break;
                 case GALLERLY_REQUEST_CODE:

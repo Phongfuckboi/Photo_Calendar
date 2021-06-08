@@ -54,6 +54,10 @@ dependencies {
     //Pure graphics lib without ffmpeg. (all arch for branch 'min')
     compile 'org.wysaid:gpuimage-plus:2.6.3-min'
 
+    implementation 'com.github.bumptech.glide:glide:4.12.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
+    implementation 'com.github.yalantis:ucrop:2.2.6'
+
 
 
 
