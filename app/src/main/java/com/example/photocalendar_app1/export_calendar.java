@@ -541,16 +541,16 @@ public class export_calendar extends AppCompatActivity  {
     // create uri CONTAIN  a bttmap
     private Uri saveImageshare(Bitmap image) {
         //TODO - Should be processed in another thread
-        File imagesFolder = new File(getCacheDir(), "images");
+        File imagesFolder = new File(getCacheDir(), Constant.PHOTO_CALENDAR_CACHE_DIR);
         Uri uri = null;
         try {
             imagesFolder.mkdirs();
             File file = new File(imagesFolder, "shared_image.png");
             FileOutputStream stream = new FileOutputStream(file);
-            image.compress(Bitmap.CompressFormat.PNG, 90, stream);
+            image.compress(Bitmap.CompressFormat.PNG, 100, stream);
             stream.flush();
             stream.close();
-            uri = FileProvider.getUriForFile(this, "com.example.photocalendar_app1.fileprovider", file);
+            uri = FileProvider.getUriForFile(export_calendar.this, "com.example.photocalendar_app1.fileprovider", file);
         } catch (IOException e) {
             Log.d(TAG, "IOException while trying to write file for sharing: " + e.getMessage());
         }
@@ -572,16 +572,25 @@ public class export_calendar extends AppCompatActivity  {
      */
     String mCurrentPhotoPath = "";
     private File createImageFilePath() throws IOException {
+
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
 
         String folderPath = Environment.getExternalStorageDirectory() + "/PhotoCalendar";    // add image taken into our custom folder in Gallery
         File storageDir = new File(folderPath);
+        /**
+         * @NOTE: from Android 11, we have using this way to get shared/external folder where app can persistent files it own
+         * https://stackoverflow.com/questions/60356260/createtempfile-on-android-10-permission-denied
+        /**/
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        }
         if (!storageDir.exists()) {
             File wallpaperDirectory = new File(folderPath);
             wallpaperDirectory.mkdirs();
         }
+
 
         File image = File.createTempFile(
                 imageFileName,

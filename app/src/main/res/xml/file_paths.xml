@@ -4,6 +4,6 @@
         <!--    Current path of this config: Android/data/package_name/files/Pictures-->
         <external-path name="PhotoCalendar" path="."/>
         <!--    App Cache Directory for temporarily saving shared bitmap-->
-        <cache-path name="caches_files" path="files/"/>
+        <cache-path name="shared_image" path="photo_calendar_cache/"/>
     </paths>
 </resources>
