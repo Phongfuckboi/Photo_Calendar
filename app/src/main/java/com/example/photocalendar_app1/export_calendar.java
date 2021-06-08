@@ -181,7 +181,7 @@ public class export_calendar extends AppCompatActivity  {
                 Bitmap bitmap= loadBitmapFromView(relativeLayout);
                 Uri uri=saveImageshare(bitmap);
                 shareImageUri(uri);
-
+                Toast.makeText(export_calendar.this,"Shared",Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -541,7 +541,8 @@ public class export_calendar extends AppCompatActivity  {
     // create uri CONTAIN  a bttmap
     private Uri saveImageshare(Bitmap image) {
         //TODO - Should be processed in another thread
-        File imagesFolder = new File(getCacheDir(), Constant.PHOTO_CALENDAR_CACHE_DIR);
+        File imagesFolder = new File(getCacheDir(), Constant.PHOTO_CALENDAR_CACHE_DIR); // (get file cach + name folder cache"
+
         Uri uri = null;
         try {
             imagesFolder.mkdirs();
