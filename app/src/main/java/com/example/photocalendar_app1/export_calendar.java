@@ -2,6 +2,7 @@ package com.example.photocalendar_app1;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +16,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.StrictMode;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.transition.TransitionManager;
 import android.util.Log;
@@ -34,9 +37,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.photocalendar_app1.DTA.ExifUtil;
+import com.example.photocalendar_app1.DTA.FileUltils;
 import com.example.photocalendar_app1.DTA.RecyclerView_adapter;
 import com.example.photocalendar_app1.DTO.Filter;
 import com.mukesh.image_processing.ImageProcessor;
+import com.yalantis.ucrop.UCrop;
 
 import net.alhazmy13.imagefilter.ImageFilter;
 
@@ -49,10 +55,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class export_calendar extends AppCompatActivity  {
@@ -557,24 +566,188 @@ public class export_calendar extends AppCompatActivity  {
         intent.setType("image/png");
         startActivity(intent);
     }
+    /// save filepath
+    /**
+     * Private method to create File path for Taken image from Camera
+     */
+    String mCurrentPhotoPath = "";
+    private File createImageFilePath() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
 
+        String folderPath = Environment.getExternalStorageDirectory() + "/PhotoCalendar";    // add image taken into our custom folder in Gallery
+        File storageDir = new File(folderPath);
+        if (!storageDir.exists()) {
+            File wallpaperDirectory = new File(folderPath);
+            wallpaperDirectory.mkdirs();
+        }
 
+        File image = File.createTempFile(
+                imageFileName,
+                ".jpg",
+                storageDir
+        );
 
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
+    //
+    /**
+     * Get fullPath String of Image in Gallery
+     */
+    private String getImagePathFromUri(Uri imgUri) {
+        //ExifInterface exifInterface = new ExifInterface(new URI(""));
+        String filePath = "";
+
+        // Check if image from ExternalStorage (SD card)
+        if (FileUltils.isExternalStorageDocument(imgUri)) {
+            final String docId = DocumentsContract.getDocumentId(imgUri);
+            final String[] split = docId.split(":");
+            final String type = split[0];
+            // Primary volume
+            if ("primary".equalsIgnoreCase(type)) {
+                return Environment.getExternalStorageDirectory() + "/" + split[1];
+            } else {
+                // Non-Primary volume
+                // get ExternalMediaDirs() added in API 21
+                File[] external = getExternalMediaDirs();
+                if (external.length > 1) {
+                    filePath = external[1].getAbsolutePath();
+                    filePath = filePath.substring(0, filePath.indexOf("Android")) + split[1];
+                    return filePath;
+                }
+            }
+        } else if (imgUri.getPath() != null && imgUri.getPath().contains("external/images/media")) {
+            // Check if image from Gallery of SDCard
+            String[] proj = {MediaStore.Images.Media.DATA};
+            Cursor cursor = getContentResolver().query(imgUri, proj, null, null, null);
+            if (cursor.moveToFirst()) {
+                ;
+                int column_index = cursor.getColumnIndexOrThrow(proj[0]);
+                filePath = cursor.getString(column_index);
+            }
+            cursor.close();
+            return filePath;
+        } else if (FileUltils.isDownloadsDocument(imgUri)) {
+            String fileName = FileUltils.getFilePath(this, imgUri);
+            if (fileName != null) {
+                return Environment.getExternalStorageDirectory().toString() + "/Download/" + fileName;
+            }
+
+            String id = DocumentsContract.getDocumentId(imgUri);
+            if (id.startsWith("raw:")) {
+                id = id.replaceFirst("raw:", "");
+                File file = new File(id);
+                if (file.exists())
+                    return id;
+            }
+
+            String[] contentUriPrefixesToTry = new String[]{
+                    "content://downloads/public_downloads",
+                    "content://downloads/my_downloads",
+                    "content://downloads/all_downloads"
+            };
+            for (String contentUriPrefix : contentUriPrefixesToTry) {
+                try {
+                    Uri contentUri = ContentUris.withAppendedId(Uri.parse(contentUriPrefix), Long.valueOf(id));
+                    String path = FileUltils.getDataColumn(this, contentUri, null, null);
+                    if (path != null) return path;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            // Path could note be retrieved using contentResolver, therefore copy file to accessible cache using streams
+            String _fileName = FileUltils.getFileName(export_calendar.this, imgUri);
+            File cacheDir = FileUltils.getDocumentCacheDir(export_calendar.this);
+            File file = FileUltils.generateFileName(_fileName, cacheDir);
+            String destinationPath = null;
+            if (file != null) {
+                destinationPath = file.getAbsolutePath();
+                FileUltils.saveFileFromUri(export_calendar.this, imgUri, destinationPath);
+            }
+            return destinationPath;
+        }
+
+        String wholeID = DocumentsContract.getDocumentId(imgUri);
+        // Split at colon, use second item in the array
+        String id = wholeID.split(":")[1];
+        //TODO: handle error when  user pick image from DCIM folder
+        if (id.contains("DCIM")) {
+            return Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + id;
+        }
+
+        String[] column = {MediaStore.Images.Media.DATA};
+
+        // where id is equal to
+        String sel = MediaStore.Images.Media._ID + "=?";
+
+        Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                column, sel, new String[]{id}, null);
+
+        int columnIndex = cursor.getColumnIndex(column[0]);
+
+        if (cursor.moveToFirst()) {
+            filePath = cursor.getString(columnIndex);
+        }
+        cursor.close();
+        return filePath;
+    }
+    //get bitmap from cache
+    private Bitmap getBitmapFromCache(Uri imageUri, String imageAbsolutePath) {
+        Bitmap tempBitmap = null;
+        if (imageAbsolutePath == null) {
+            // Check if image is picked from Google Photo
+            if ("com.google.android.apps.photos.contentprovider".equals(imageUri.getAuthority())) {
+                InputStream inputStreamBitmap = null;
+                try {
+                    inputStreamBitmap = getContentResolver().openInputStream(imageUri);
+                    tempBitmap = BitmapFactory.decodeStream(inputStreamBitmap);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        if (inputStreamBitmap != null) {
+                            inputStreamBitmap.close();
+                            imageAbsolutePath = FileUltils.getPathFromInputStreamUri(export_calendar.this, imageUri);
+                        }
+                    } catch (IOException ignored) {
+                    }
+                }
+            } else {
+                imageAbsolutePath = getImagePathFromUri(imageUri);
+                tempBitmap = BitmapFactory.decodeFile(imageAbsolutePath, null);
+            }
+        }
+        if (tempBitmap == null) {
+            tempBitmap = BitmapFactory.decodeFile(imageAbsolutePath, null);
+        }
+
+        // TODO: add check null image
+        if (tempBitmap == null) {
+            //Toast.makeText(getApplicationContext(), getWrappedContext().getResources().getString(R.string.error_pick_images), Toast.LENGTH_SHORT).show();
+        }
+        return  tempBitmap;
+    }
     //ckeck permisiion
     private void choseimage() {
     img_cam.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            values = new ContentValues();
-            values.put(MediaStore.Images.Media.TITLE, "New Picture");
-            values.put(MediaStore.Images.Media.DESCRIPTION, "From your Camera");
-            imageUri = getContentResolver().insert(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-            startActivityForResult(intent, CAMERA_REQUEST_CODE);
-//            Intent intent= new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-//            startActivityForResult(intent,CAMERA_REQUEST_CODE);
+            Intent intent= new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+            File imageFile = null;
+            try {
+                imageFile = createImageFilePath();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (imageFile != null) {
+                Uri photoUri = FileProvider.getUriForFile(export_calendar.this, "com.example.photocalendar_app1.fileprovider", imageFile);
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                startActivityForResult(intent,CAMERA_REQUEST_CODE);
+            }
         }
     });
 
@@ -588,6 +761,7 @@ public class export_calendar extends AppCompatActivity  {
     });
 }
 
+    //check permisssion
     public static boolean checkAndRequestPermissions(final Activity context) {
     int WExtstorePermission = ContextCompat.checkSelfPermission(context,
             Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -609,6 +783,7 @@ public class export_calendar extends AppCompatActivity  {
     }
     return true;
 }
+    //requwest permisson when use deny permmission
     @Override
     public void onRequestPermissionsResult(int requestCode,String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -631,6 +806,8 @@ public class export_calendar extends AppCompatActivity  {
         }
     }
 
+
+    //get Uri in
     public Uri getImageUri(Context inContext, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
@@ -640,6 +817,7 @@ public class export_calendar extends AppCompatActivity  {
 
         return Uri.parse(path);
     }
+    //get real filepath
     public String getRealPathFromURI(Uri uri) {
         String path = "";
         if (getContentResolver() != null) {
@@ -659,22 +837,20 @@ public class export_calendar extends AppCompatActivity  {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode != RESULT_CANCELED) {
+        if (resultCode != RESULT_CANCELED ) {
             switch (requestCode) {
                 case CAMERA_REQUEST_CODE:
-                    if (resultCode == RESULT_OK && data != null) {
-                        try {
-                           Bitmap thumbnail = MediaStore.Images.Media.getBitmap(
-                                    getContentResolver(), imageUri);
-                                   //img_user.setImageBitmap(thumbnail);
+                    if (resultCode == RESULT_OK) {
+                      try{
 
-                            Uri tempUri = getImageUri(this, thumbnail);
-                            String path= getRealPathFromURI(tempUri);
-                            img_user.setImageBitmap(thumbnail);
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                          //get bitmap from cache with realpath
+                          Bitmap bitmap_img_user=getBitmapFromCache(null,mCurrentPhotoPath);
+                          //USe function orientation
+                          Bitmap rotate_image=FileUltils.modifyOrientation(export_calendar.this,bitmap_img_user,mCurrentPhotoPath);
+                          //use libary set bitamp with quality
+                          Glide.with(export_calendar.this).load(rotate_image).override(1000,1000).into(img_user);
+                      }
+                      catch (Exception e){}
 
                     }
                     break;

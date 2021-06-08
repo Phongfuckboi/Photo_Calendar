@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <paths xmlns:android="http://schemas.android.com/apk/res/android">
-        <cache-path name="shared_images" path="./"/>
+        <!--    Current path of this config: Android/data/package_name/files/Pictures-->
+        <external-path name="PhotoCalendar" path="."/>
+        <!--    App Cache Directory for temporarily saving shared bitmap-->
+        <cache-path name="caches_files" path="files/"/>
     </paths>
 </resources>
