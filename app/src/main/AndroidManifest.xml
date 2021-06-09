@@ -12,11 +12,16 @@
         android:label="@string/app_name"
         android:roundIcon="@drawable/image_icon"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.NoActionBar" >
-        <activity android:name=".frame_calendar_activiti" />
-        <activity android:name=".export_calendar" />
-        <activity android:name=".MainActivity" />
-        <activity android:name=".Flash_spreenActivity" >
+        android:theme="@style/Theme.AppCompat.NoActionBar"
+        android:requestLegacyExternalStorage="true">
+        <activity android:name=".frame_calendar_activiti"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".export_calendar"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".MainActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Flash_spreenActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

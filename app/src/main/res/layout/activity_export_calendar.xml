@@ -50,9 +50,8 @@
             android:layout_marginBottom="@dimen/_100sdp"
             android:layout_marginTop="@dimen/_10sdp"
             android:layout_alignBottom="@+id/l1"
-             android:layout_above="@+id/l1"
+             android:layout_above="@+id/l1">
 
-        >
             <com.otaliastudios.zoom.ZoomLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -71,7 +70,7 @@
                 app:oneFingerScrollEnabled="true"
                 app:twoFingersScrollEnabled="true"
                 app:threeFingersScrollEnabled="true"
-                app:minZoom="0.7"
+                app:minZoom="0.5"
                 app:minZoomType="zoom"
                 app:maxZoom="2.5"
                 app:maxZoomType="zoom"
@@ -79,13 +78,14 @@
                 app:hasClickableChildren="false">
 
                 <ImageView
-
                     android:id="@+id/img_user"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     />
 
             </com.otaliastudios.zoom.ZoomLayout>
+
+
 
             <ImageView
                 android:id="@+id/img_mark"

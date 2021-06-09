@@ -58,7 +58,7 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
     implementation 'com.github.yalantis:ucrop:2.2.6'
     implementation 'com.github.yalantis:ucrop:2.2.6-native'
-
+    implementation 'com.github.lau1944:Zoom-Drag-Rotate-ImageView:1.0.0'
 
 
 

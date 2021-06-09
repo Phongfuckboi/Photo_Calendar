@@ -21,6 +21,7 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.transition.TransitionManager;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -37,6 +38,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.easystudio.rotateimageview.RotateZoomImageView;
 import com.example.photocalendar_app1.DTA.ExifUtil;
 import com.example.photocalendar_app1.DTA.FileUltils;
 import com.example.photocalendar_app1.DTA.RecyclerView_adapter;
@@ -69,7 +71,7 @@ public class export_calendar extends AppCompatActivity  {
 
     private static final String TAG = "AAA";
     private static final int REQUEST_ID_MULTIPLE_PERMISSIONS =111 ;
-    private ImageView img, img_user;
+    private ImageView img,img_user;
     private ImageView img_cam , img_gall, img_save, img_share, img_filter;
     private final static int CAMERA_REQUEST_CODE = 1;
     private final static int GALLERLY_REQUEST_CODE = 11;
@@ -181,7 +183,6 @@ public class export_calendar extends AppCompatActivity  {
                 Bitmap bitmap= loadBitmapFromView(relativeLayout);
                 Uri uri=saveImageshare(bitmap);
                 shareImageUri(uri);
-                Toast.makeText(export_calendar.this,"Shared",Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -262,6 +263,8 @@ public class export_calendar extends AppCompatActivity  {
         adapter.setOnItemClickListener(new RecyclerView_adapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
+                adapter.ckeck(position);
+                adapter.notifyDataSetChanged();
                 Bitmap bitmap=bitmap_nochange;
                 Log.d("AAA","aaa:"+bitmap);
                 seekBar_filter.setProgress(100);

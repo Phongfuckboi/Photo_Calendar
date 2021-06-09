@@ -4,8 +4,17 @@ import android.graphics.Bitmap;
 
 public class Filter {
 
-    int imgae_filter;
-    String filtername;
+    private int imgae_filter;
+    private String filtername;
+    private boolean check;
+
+    public boolean isCheck() {
+        return check;
+    }
+
+    public void setCheck(boolean check) {
+        this.check = check;
+    }
 
     public int getImgae_frame() {
         return imgae_filter;

@@ -29,12 +29,13 @@
                 android:id="@+id/image_view"
                 android:src="@drawable/ic_launcher_background"/>
             <ImageView
-
-                android:src="@drawable/ic_baseline_check_24"
+                android:layout_marginTop="@dimen/_3sdp"
+                android:layout_marginRight="@dimen/_3sdp"
+                android:src="@drawable/iconckeck"
                 android:id="@+id/img_ckeck"
                 android:layout_alignParentRight="true"
-                android:layout_width="@dimen/_30sdp"
-                android:layout_height="@dimen/_30sdp"/>
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"/>
 
         </RelativeLayout>
 

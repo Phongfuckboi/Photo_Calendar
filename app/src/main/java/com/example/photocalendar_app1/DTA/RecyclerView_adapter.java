@@ -35,10 +35,12 @@ public class RecyclerView_adapter extends RecyclerView.Adapter<RecyclerView_adap
     private ArrayList<Filter> arrayList_filter;
     private Context context;
     private OnItemClickListener mlisten;
+    public   int ckeckpossition=0;
 
     public void setOnItemClickListener(OnItemClickListener listener){
         this.mlisten=listener;
     }
+
 
 
 
@@ -58,12 +60,18 @@ public class RecyclerView_adapter extends RecyclerView.Adapter<RecyclerView_adap
     public void onBindViewHolder(@NonNull @NotNull RecyclerView_adapter.viewholder holder, int position) {
         Filter filter= arrayList_filter.get(position);
         holder.circleImageView.setImageResource(filter.getImgae_frame());
-        holder.imageView.setVisibility(View.GONE);
-
+        if(position==ckeckpossition)
+        {
+            holder.imageView.setVisibility(View.VISIBLE);
+        }
+        else   holder.imageView.setVisibility(View.GONE);
 
     }
 
-
+    public void ckeck(int position)
+    {
+        ckeckpossition=position;
+    }
     @Override
     public int getItemCount() {
         return arrayList_filter.size();
@@ -96,8 +104,10 @@ public class RecyclerView_adapter extends RecyclerView.Adapter<RecyclerView_adap
 
     }
 
+
     }
     public interface OnItemClickListener {
         void onItemClick(int position);
+
     }
 }
